@@ -6,7 +6,7 @@
             top:top
         };
         this.display = function () {
-            var order = self.top * APP.settings.dimension + self.left + 1;
+            var order = self.top * APP.settings.dimension + self.left;
             document.getElementById('box-' + order).classList.add(self.className);
         }
     }
@@ -98,8 +98,9 @@
                 boxContainer.className = 'box-container';
 
                 for (var i = 0; i < self.settings.dimension; i++) {
+                    self.playground[i] = [];
                     for (var j = 0; j < self.settings.dimension; j++) {
-                        var order = i * self.settings.dimension + j + 1;
+                        var order = i * self.settings.dimension + j;
                         var div = document.createElement('div');
                         div.className = 'box';
                         div.setAttribute('style', 'width : ' + boxSize + '%; height : ' + boxSize + '%');
@@ -117,6 +118,7 @@
 
             var createObjects = function () {
                 var coord = self.getCoord();
+
                 self.bunny = new Bunny('bunny', coord.left, coord.top, self.settings.bunnyStep);
                 self.bunny.display();
 
@@ -162,6 +164,7 @@
         getCoord:function () {
             var self = APP;
             var randomInt, coord;
+
             do {
                 randomInt = self.getRandomInt(1, 36);
                 coord = self.getCoordFromOrder(randomInt);
@@ -171,9 +174,14 @@
             var self = APP;
             var top = ~~(number / self.settings.dimension);
             var left = number % self.settings.dimension;
+            return {left : left, top: top};
 
         },
         isEmptyCoord : function (coord) {
+            var self = APP;
+            console.log(self.playground);
+            console.log(coord);
+
              return (self.playground[coord.left][coord.top] == 0);
         }
 
