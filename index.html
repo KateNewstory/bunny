@@ -3,7 +3,7 @@
 <head>
     <title>BunnY</title>
     <link rel="stylesheet" type="text/css" href="style.css">
-  <!--  <script src="finder.js"></script>-->
+    <!--  <script src="finder.js"></script>-->
     <script src="script.js"></script>
 
 </head>
@@ -13,42 +13,47 @@
     <div class="settings-container">
         <div>
             <label for="dimension">Размерность</label>
-            <input name="dimension" id="dimension"/>
+            <input name="dimension" id="dimension" value="10"/>
         </div>
 
         <div>
             <label for="treeCount">Количество деревьев</label>
-            <input name="treeCount" id="treeCount"/>
+            <input name="treeCount" id="treeCount" value="2"/>
         </div>
 
         <div>
             <label for="bushCount">Количество кустов</label>
-            <input name="bushCount" id="bushCount"/>
+            <input name="bushCount" id="bushCount" value="3"/>
         </div>
 
         <div>
             <label for="treeTime">Время жизни дерева</label>
-            <input name="treeTime" id="treeTime"/>
+            <input name="treeTime" id="treeTime" value="2"/>
         </div>
 
         <div>
             <label for="bushTime">Время жизни куста</label>
-            <input name="bushTime" id="bushTime"/>
+            <input name="bushTime" id="bushTime" value="1"/>
         </div>
 
         <div>
             <label for="woolfStep">Ход волка</label>
-            <input name="woolfStep" id="woolfStep"/>
+            <input name="woolfStep" id="woolfStep" value="2"/>
         </div>
 
         <div>
             <label for="bunnyStep">Ход зайца</label>
-            <input name="bunnyStep" id="bunnyStep"/>
+            <input name="bunnyStep" id="bunnyStep" value="1"/>
         </div>
 
         <div>
-            <label for="stepTime">Время хода</label>
-            <input name="stepTime" id="stepTime"/>
+            <label for="stepTime">Время хода (милисек)</label>
+            <input name="stepTime" id="stepTime" value="1000"/>
+        </div>
+
+        <div>
+            <label for="maxWoolfStep">Макс число ходов волка</label>
+            <input name="maxWoolfStep" id="maxWoolfStep" value="5"/>
         </div>
         <div style="text-align: center;">
             <button id="startBtn">Старт</button>
