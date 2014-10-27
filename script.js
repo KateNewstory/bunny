@@ -1,31 +1,27 @@
 (function (global) {
     function Box(className, left, top) {
         var self = {
-            className:className,
-            left:left,
-            top:top
+            className: className,
+            left: left,
+            top: top
         };
         this.display = function () {
             var order = self.top * APP.settings.dimension + self.left;
             document.getElementById('box-' + order).classList.add(self.className);
         }
-    }
-
-    ;
+    };
     function Animal(className, left, top, step) {
         Box.call(this, className, left, top);
         var self = {
-            className:className,
-            left:left,
-            top:top,
-            step:step
+            className: className,
+            left: left,
+            top: top,
+            step: step
         };
         this.run = function () {
             alert('Run, Forest, run!');
         }
-    }
-
-    ;
+    };
 
     function Bunny(className, left, top, step) {
         Animal.call(this, className, left, top, step);
@@ -34,10 +30,13 @@
             alert('Bunny');
             run();
         }
-
-    }
-
-    ;
+        this.isAlive = function () {
+            var difLeft, difTop;
+            difLeft = self.left - APP.woolf.left;
+            difTop = self.top - APP.woolf.top;
+            return (((difLeft == 1) || (difLeft == 0) || (difLeft = -1)) && ((difTop == 1) || (difTop == 0) || (difTop = -1)));
+        }
+    };
 
     function Woolf(className, left, top, step) {
         Animal.call(this, className, left, top, step);
@@ -53,10 +52,10 @@
     function Plant(className, left, top, time) {
         Box.call(this, className, left, top);
         var self = {
-            className:className,
-            left:left,
-            top:top,
-            time:time
+            className: className,
+            left: left,
+            top: top,
+            time: time
         };
         this.die = function () {
             alert('Sorry, die(');
@@ -70,13 +69,13 @@
     ;
 
     var APP = {
-        settings:{},
-        woolf:{},
-        bunny:{},
-        tree:[],
-        bush:[],
-        playground:[],
-        init:function () {
+        settings: {},
+        woolf: {},
+        bunny: {},
+        tree: [],
+        bush: [],
+        playground: [],
+        init: function () {
             var self = APP;
             var startBtn = document.getElementById('startBtn');
 
@@ -138,15 +137,31 @@
                 }
             };
 
+            var oneStep = function () {
+                //
+            };
+
+            var iterate = function () {
+                var self = APP;
+                for (var i = 0; i < self.settings.maxWoolfStep; i++) {
+                    oneStep();
+                }
+            };
+
+
             var startGame = function () {
                 setSettings();
                 createPlayGround();
                 createObjects();
+                iterate();
+                if (!self.bunny.isAlive()) {
+                    alert('Poor bunny :(');
+                }
             };
 
             self.addListener(startBtn, "click", startGame);
         },
-        addListener:function (target, eventName, handlerName) {
+        addListener: function (target, eventName, handlerName) {
             if (target.addEventListener) {
                 target.addEventListener(eventName, handlerName, false);
             } else if (target.attachEvent) {
@@ -155,35 +170,35 @@
                 target["on" + eventName] = handlerName;
             }
         },
-        getRandomInt:function (min, max) {
+        getRandomInt: function (min, max) {
 
             return Math.floor(Math.random() * (max - min + 1)) + min;
 
         },
-        getCoord:function () {
+        getCoord: function () {
             var self = APP;
             var randomInt, coord;
             do {
-                randomInt = self.getRandomInt(0, self.settings.dimension*self.settings.dimension - 1);
+                randomInt = self.getRandomInt(0, self.settings.dimension * self.settings.dimension - 1);
                 console.log(randomInt);
                 coord = self.getCoordFromOrder(randomInt);
-                } while (!self.isEmptyCoord(coord));
+            } while (!self.isEmptyCoord(coord));
             return coord;
         },
-        getCoordFromOrder:function (number) {
+        getCoordFromOrder: function (number) {
             var self = APP;
             var top = ~~(number / self.settings.dimension);
             var left = number % self.settings.dimension;
             return {
-                left : left,
-                top : top
+                left: left,
+                top: top
             }
 
         },
-        isEmptyCoord : function (coord) {
+        isEmptyCoord: function (coord) {
             var self = APP;
             console.log(coord);
-             return (self.playground[coord.left][coord.top] == 0);
+            return (self.playground[coord.left][coord.top] == 0);
         }
 
     };
