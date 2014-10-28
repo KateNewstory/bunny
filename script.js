@@ -1,14 +1,14 @@
 (function (global) {
     function Box(className, left, top, order) {
         var self = {
-            className:className,
-            left:left,
-            top:top,
-            order:order
+            className: className,
+            left: left,
+            top: top,
+            order: order
         };
         this.display = function () {
             document.getElementById('box-' + self.order).classList.add(self.className);
-            APP.playground[self.left][self.top] = 1;
+            APP.playground[self.top][self.left] = 1;
         };
         this.getProp = function () {
             return self;
@@ -19,21 +19,23 @@
     function Animal(className, left, top, order, step) {
         Box.call(this, className, left, top, order);
         var self = {
-            className:className,
-            left:left,
-            top:top,
-            order:order,
-            step:step
+            className: className,
+            left: left,
+            top: top,
+            order: order,
+            step: step
         };
         this.run = function (leftTo, topTo) {
             //clear prev position
             document.getElementById('box-' + self.order).classList.remove(self.className);
-            APP.playground[self.left][self.top] = 0;
+            APP.playground[self.top][self.left] = 0;
             self.left = leftTo;
             self.top = topTo;
             self.order = APP.getOrderFromCoord(self.left, self.top);
             //and display
-            this.display();
+            //Could not user this.display()!!!!!!Why? Closure? How make it work?!
+            document.getElementById('box-' + self.order).classList.add(self.className);
+            APP.playground[self.top][self.left] = 1;
         };
     }
 
@@ -43,14 +45,14 @@
         Animal.call(this, className, left, top, order, step);
         var run = this.run;
         this.run = function () {
-            alert('Bunny');
-            run();
+            /*var coord = APP.getCoord();
+             run(leftTo, topTo);*/
         };
         this.isDead = function () {
             var difLeft, difTop;
             difLeft = this.getProp().left - APP.woolf.getProp().left;
             difTop = this.getProp().top - APP.woolf.getProp().top;
-            return (((difLeft == 1) || (difLeft == 0) || (difLeft ==-1)) && ((difTop == 1) || (difTop == 0) || (difTop == -1)));
+            return (((difLeft == 1) || (difLeft == 0) || (difLeft == -1)) && ((difTop == 1) || (difTop == 0) || (difTop == -1)));
         }
     }
 
@@ -58,11 +60,28 @@
 
     function Woolf(className, left, top, order, step) {
         Animal.call(this, className, left, top, order, step);
+
+        this.findShortPath = function (lf, tf, lt, tt) {
+            var grid = new PF.Grid(+APP.settings.dimension, +APP.settings.dimension, APP.playground);
+            grid.setWalkableAt(this.getProp().left, this.getProp().top, true);
+            grid.setWalkableAt(this.getProp().left, this.getProp().top, true);
+            grid.setWalkableAt(APP.bunny.getProp().left, APP.bunny.getProp().top, true);
+            var finder = new PF.AStarFinder();
+
+            return finder.findPath(lf, tf, lt, tt, grid);
+        };
         var run = this.run;
         this.run = function () {
-            alert('Woolf');
-            run();
-        }
+            var path = this.findShortPath(this.getProp().left, this.getProp().top, APP.bunny.getProp().left, APP.bunny.getProp().top);
+            for (var i = 0, stepLeft = APP.settings.woolfStep; i < path.length; i++, stepLeft--) {
+                if (stepLeft <= 0) {
+                    break;
+                }
+                run(path[i][0], path[i][1]);
+            }
+
+        };
+
     }
 
     ;
@@ -70,11 +89,11 @@
     function Plant(className, left, top, order, time) {
         Box.call(this, className, left, top, order);
         var self = {
-            className:className,
-            left:left,
-            top:top,
-            order:order,
-            time:time
+            className: className,
+            left: left,
+            top: top,
+            order: order,
+            time: time
         };
         this.reborn = function () {
             if (self.time == 0) {
@@ -104,13 +123,13 @@
     ;
 
     var APP = {
-        settings:{},
-        woolf:{},
-        bunny:{},
-        tree:[],
-        bush:[],
-        playground:[],
-        init:function () {
+        settings: {},
+        woolf: {},
+        bunny: {},
+        tree: [],
+        bush: [],
+        playground: [],
+        init: function () {
             var self = APP;
             var startBtn = document.getElementById('startBtn');
 
@@ -156,6 +175,7 @@
                 self.bunny.display();
 
                 coord = self.getCoord();
+
                 self.woolf = new Woolf('woolf', coord.left, coord.top, self.getOrderFromCoord(coord.left, coord.top), self.settings.woolfStep);
                 self.woolf.display();
 
@@ -170,6 +190,8 @@
                     self.bush[i] = new Plant('bush', coord.left, coord.top, self.getOrderFromCoord(coord.left, coord.top), self.settings.bushTime);
                     self.bush[i].display();
                 }
+
+
             };
 
             var oneStep = function (step) {
@@ -179,6 +201,10 @@
                 for (var i = 0; i < self.bush.length; i++) {
                     self.bush[i].reborn();
                 }
+                //Bunny step
+                self.bunny.run();
+                //Woolf step
+                self.woolf.run();
             };
 
             var iterate = function () {
@@ -195,7 +221,6 @@
                 }
             };
 
-
             var startGame = function () {
                 setSettings();
                 createPlayGround();
@@ -205,7 +230,7 @@
 
             self.addListener(startBtn, "click", startGame);
         },
-        addListener:function (target, eventName, handlerName) {
+        addListener: function (target, eventName, handlerName) {
             if (target.addEventListener) {
                 target.addEventListener(eventName, handlerName, false);
             } else if (target.attachEvent) {
@@ -214,12 +239,12 @@
                 target["on" + eventName] = handlerName;
             }
         },
-        getRandomInt:function (min, max) {
+        getRandomInt: function (min, max) {
 
             return Math.floor(Math.random() * (max - min + 1)) + min;
 
         },
-        getCoord:function () {
+        getCoord: function () {
             var self = APP;
             var randomInt, coord;
             do {
@@ -228,21 +253,21 @@
             } while (!self.isEmptyCoord(coord));
             return coord;
         },
-        getCoordFromOrder:function (number) {
+        getCoordFromOrder: function (number) {
             var self = APP;
             var top = ~~(number / self.settings.dimension);
             var left = number % self.settings.dimension;
             return {
-                left:left,
-                top:top
+                left: left,
+                top: top
             }
 
         },
-        getOrderFromCoord:function (left, top) {
+        getOrderFromCoord: function (left, top) {
             var self = APP;
             return top * self.settings.dimension + left
         },
-        isEmptyCoord:function (coord) {
+        isEmptyCoord: function (coord) {
             var self = APP;
             return (self.playground[coord.left][coord.top] == 0);
         }
